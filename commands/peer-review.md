@@ -35,8 +35,6 @@ if (!page) return {
   pages: figma.root.children.map(p => p.name)
 };
 await figma.setCurrentPageAsync(page);
-const allVars = await figma.variables.getLocalVariablesAsync();
-const colorVarIds = allVars.filter(v => v.resolvedType === 'COLOR').map(v => v.id);
 const textStyles = figma.getLocalTextStyles().map(s => ({ id: s.id, name: s.name }));
 
 const SKIP_NAMES = new Set(['Guía', 'Notas', 'Doc', 'Changelog', 'Cover', 'Instrucciones']);
@@ -51,24 +49,20 @@ const frames = page.children
   })
   .map(n => ({ id: n.id, name: n.name, type: n.type }));
 
-return { fileName, pageId: page.id, colorVarIds, textStyles, frames };
+return { fileName, pageId: page.id, textStyles, frames };
 ```
 
-**1b — Leer los 7 skills en paralelo** (en el mismo mensaje que 1a):
+**1b — Leer los 6 skills en paralelo** (en el mismo mensaje que 1a):
 - Read file: /Users/tomasfermani/.claude/commands/skills/spacing.md
 - Read file: /Users/tomasfermani/.claude/commands/skills/border-radius.md
 - Read file: /Users/tomasfermani/.claude/commands/skills/components.md
-- Read file: /Users/tomasfermani/.claude/commands/skills/colors.md
 - Read file: /Users/tomasfermani/.claude/commands/skills/copy.md
 - Read file: /Users/tomasfermani/.claude/commands/skills/content.md
 - Read file: /Users/tomasfermani/.claude/commands/skills/notes.md
 
 Registrá internamente la hora de inicio: startTime = Date.now()
 
-Si colorVarIds y textStyles están vacíos: continuar igual.
-Los skills reportarán todos los fills SOLID como hardcodeados (comportamiento esperado cuando el DS no usa variables locales).
-
-Guardar en memoria: { colorVariableIds, textStyleIds, spacingValues: [4,8,12,16,24,32,40,48,64,72,80,88,96] }
+Guardar en memoria: { textStyleIds, spacingValues: [4,8,12,16,24,32,40,48,64,72,80,88,96] }
 
 ### CICLO 2 — Fetch batch — datos de todos los frames (una sola llamada)
 
@@ -206,7 +200,7 @@ Los skills están cargados en contexto desde la pre-carga inicial — no releer.
 Para cada frame en framesData (análisis en memoria, sin llamadas externas):
 
 PASO 1 — Ejecutar con frame.nodes:
-spacing · border-radius · components · colors
+spacing · border-radius · components
 
 PASO 2 — Ejecutar con frame.texts:
 copy · content
@@ -260,7 +254,6 @@ Frames: X revisados · X salteados
 
 📐 Espaciado:     X issues
 🔘 Border Radius: X issues
-🎨 Colores:       X issues
 ✏️  Copy:          X issues
 📦 Contenido:     X issues
 🧩 Componentes:   X issues
